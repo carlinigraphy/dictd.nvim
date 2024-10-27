@@ -49,24 +49,7 @@ local function lookup()
    })
 
    -- Matches below largely from @koonix/vimdict.
-   vim.cmd [[
-      nnoremap <buffer> q :q<CR>
-
-      syn match dictHeader  '\v^\d+ definitions? found'
-      syn match dictName    '^From.*$'
-      syn match dictWord    '^  \w[^\\]\+'
-      syn match dictNum     '^ \{1,6}\d\+\.'
-      syn match dictExpr    '^ \{1,6}{[^}]\+}'
-      syn match dictNote    '^ *Note:'
-
-      hi! def link dictHeader Type
-      hi! def link dictName   Comment
-      hi! def link dictWord   Boolean
-      hi! def link dictNum    Conditional
-      hi! def link dictExpr   Type
-      hi! def link dictNote   Comment
-   ]]
-
+   vim.bo.filetype = 'dictd'
    return win_id
 end
 
