@@ -8,8 +8,7 @@ local function lookup()
       return
    end
 
-   local win_height = vim.api.nvim_win_get_height(0)
-   local win_width  = vim.api.nvim_win_get_width(0)
+   local win_height = vim.api.nvim_win_get_height(0) local win_width  = vim.api.nvim_win_get_width(0)
 
    local f = io.popen('dict "'..term..'" 2>/dev/null')
    if not f then return end
@@ -36,7 +35,7 @@ local function lookup()
       width    = float_width,
       height   = float_height,
       style    = 'minimal',
-     border   = {
+   border   = {
          {" ", ""}, -- top left
          { "", ""}, -- top
          {" ", ""}, -- top right
@@ -53,4 +52,9 @@ local function lookup()
    return win_id
 end
 
-vim.keymap.set('n', '<leader>df', lookup)
+return {
+   setup = function(bind)
+      bind = bind or '<leader>df'
+      vim.keymap.set('n', bind, lookup)
+   end
+}
