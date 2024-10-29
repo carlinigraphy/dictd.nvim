@@ -1,8 +1,12 @@
-local function lookup()
-   local term = vim.fn.input({
-      prompt = 'word> ',
-      default = vim.fn.expand('<cword>')
-   })
+local function lookup(skip_input)
+   local term = vim.fn.expand('<cword>')
+
+   if not skip_input then
+      term = vim.fn.input({
+         prompt = 'word> ',
+         default = term,
+      })
+   end
 
    if term == '' then
       return
@@ -52,9 +56,23 @@ local function lookup()
    return win_id
 end
 
+
 return {
-   setup = function(bind)
-      bind = bind or '<leader>df'
-      vim.keymap.set('n', bind, lookup)
-   end
+   ---@param opts {key: string, keywordprg_filetypes: string[]}
+   setup = function(opts)
+      vim.keymap.set('n', opts.key, lookup)
+
+      -- TODO: doesn't work yet. Gotta figure out setting `keywordprg`.
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = opts.keywordprg_filetypes,
+        callback = function(_)
+           vim.bo.keywordprg = [[:lua require('dictd').lookup(true)]]
+        end
+      })
+   end,
+
+   ---@param skip_input boolean
+   lookup = function(skip_input)
+      lookup(skip_input)
+   end,
 }
