@@ -1,18 +1,5 @@
-local function lookup(skip_input)
-   local term = vim.fn.expand('<cword>')
-
-   if not skip_input then
-      term = vim.fn.input({
-         prompt = 'word> ',
-         default = term,
-      })
-   end
-
-   if term == '' then
-      return
-   end
-
-   local win_height = vim.api.nvim_win_get_height(0) local win_width  = vim.api.nvim_win_get_width(0)
+lookup = function(term)
+   if term == "" then return end
 
    local f = io.popen('dict "'..term..'" 2>/dev/null')
    if not f then return end
@@ -29,6 +16,9 @@ local function lookup(skip_input)
 
    local buf_id = vim.api.nvim_create_buf(false, true)
    vim.api.nvim_buf_set_lines(buf_id, 0, 0, false, lines)
+
+   local win_height = vim.api.nvim_win_get_height(0)
+   local win_width  = vim.api.nvim_win_get_width(0)
 
    local float_width  = 78
    local float_height = math.min(#lines+1, win_height-1)
@@ -56,23 +46,40 @@ local function lookup(skip_input)
    return win_id
 end
 
-
 return {
-   ---@param opts {key: string, keywordprg_filetypes: string[]}
-   setup = function(opts)
-      vim.keymap.set('n', opts.key, lookup)
+   configure = function(opts)
+      vim.validate({ opts = {opts, "table"} })
+      vim.validate({ filetypes = {opts.filetypes, {"nil", "table" }} })
+      vim.validate({ keymap    = {opts.keymap   , {"nil", "string"}} })
 
-      -- TODO: doesn't work yet. Gotta figure out setting `keywordprg`.
+      vim.keymap.set("n", opts.keymap, function()
+         local term = vim.fn.input({
+            prompt = 'word> ',
+            default = vim.fn.expand('<cword>'),
+         })
+         lookup(term)
+      end)
+
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = opts.keywordprg_filetypes,
-        callback = function(_)
-           vim.bo.keywordprg = [[:lua require('dictd').lookup(true)]]
-        end
+         pattern = opts.filetypes or {},
+         callback = function(_)
+            vim.bo.keywordprg = ":Dict"
+         end
+      })
+
+      vim.api.nvim_create_user_command("Dict", function(tbl)
+         lookup(tbl.args)
+      end, {
+         nargs = 1,
+         desc = "`dict` definition of <word> in floating buffer"
       })
    end,
 
-   ---@param skip_input boolean
-   lookup = function(skip_input)
-      lookup(skip_input)
-   end,
+   lookup = function()
+      local term = vim.fn.input({
+         prompt = 'word> ',
+         default = vim.fn.expand('<cword>'),
+      })
+      lookup(term)
+   end
 }
