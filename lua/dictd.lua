@@ -1,4 +1,4 @@
-lookup = function(term)
+local function lookup(term)
    if term == "" then return end
 
    local f = io.popen('dict "'..term..'" 2>/dev/null')
@@ -29,16 +29,7 @@ lookup = function(term)
       width    = float_width,
       height   = float_height,
       style    = 'minimal',
-   border   = {
-         {" ", ""}, -- top left
-         { "", ""}, -- top
-         {" ", ""}, -- top right
-         {" ", ""}, -- right
-         {" ", ""}, -- bottom right
-         { "", ""}, -- bottom
-         {" ", ""}, -- bottom left
-         {" ", ""}, -- left
-      },
+      border   = 'single',
    })
 
    -- Matches below largely from @koonix/vimdict.
