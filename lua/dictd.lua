@@ -40,8 +40,8 @@ end
 return {
    configure = function(opts)
       vim.validate({ opts = {opts, "table"} })
+      vim.validate({ keymap    = {opts.keymap   , {"string"}}        })
       vim.validate({ filetypes = {opts.filetypes, {"nil", "table" }} })
-      vim.validate({ keymap    = {opts.keymap   , {"nil", "string"}} })
 
       vim.keymap.set("n", opts.keymap, function()
          local term = vim.fn.input({
